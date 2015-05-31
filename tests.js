@@ -5,3 +5,10 @@ unction testMakeNumberMoreEqual (){
       console.log(t);
     }
 }
+
+
+
+function testCollisions() {
+  test1 = [new BabyBalloon(5, 5), new BabyBalloon(10, 10)];
+  console.log(haveCollided(test1[0], test1[1]))
+}

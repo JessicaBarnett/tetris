@@ -1,62 +1,3 @@
-//****** Random value generator *******//
-var random = (function(){
-  _randomNum = function(min, max) {
-      return Math.floor(Math.random() * (max - min) + min);
-  },
-  randomPosition = function(){
-      return _randomNum(100, 400);
-  },
-  randomColor = function(){
-    var letters = '0123456789ABCDEF'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  },
-  randomRadius = function(){
-      return _randomNum(10, 50);
-  },
-  randomDirection = function(){
-      return _randomNum(-10, 10);
-  };
-
-  return {
-    pos: randomPosition,
-    col: randomColor,
-    rad: randomRadius,
-    dir: randomDirection
-  }
-
-})();
-
-//****** Canvas Draw functions *******//
-var canvasElement = document.getElementById('canvas');
-var canvas = (function(ctx, w, h){
-  var context = ctx,
-      width = w,
-      height = h,
-
-  drawCircle = function(x, y, radius, color){
-      context.beginPath();
-      context.fillStyle = color;
-      context.arc(x, y, radius, 0, Math.PI*2, true);
-      context.closePath();
-      context.lineWidth = 0;
-      context.fill();
-  },
-  clear = function(){
-      context.fillStyle = 'aliceblue';
-      context.fillRect(0, 0, width, height);
-  };
-
-  return {
-    drawCircle : drawCircle,
-    clear: clear
-  }
-})(canvasElement.getContext('2d'), canvasElement.width, canvasElement.height);
-canvas.clear(); //draw board
-
 //****** Basic Balloon *******//
 
 function Balloon (x, y, rad, col) {
@@ -64,42 +5,78 @@ function Balloon (x, y, rad, col) {
   this.y = y || random.pos();
   this.radius = rad || random.rad();
   this.color = col || random.col();
-  this.timer;
+  this.id = generateId();
 }
 
 Balloon.prototype.draw = function(canvas){
   canvas.drawCircle(this.x, this.y, this.radius, this.color);
+};
+
+//*****  Baby Balloon  *****//
+
+BabyBalloon.prototype = Object.create(Balloon.prototype);
+BabyBalloon.prototype.construstor = BabyBalloon;
+
+function BabyBalloon (x, y) {
+  Balloon.call(this, x, y);
+  this.radius = 15;
 }
 
-Balloon.prototype.automate = function (){
+BabyBalloon.prototype.automate = function (){
   this.dx = random.dir();
   this.dy = random.dir();
   this.auto = true;
 
-  this.timer = setInterval(this.step.bind(this), 10);
+  this.timer = setInterval(this.step.bind(this), 50);
 }
 
-Balloon.prototype.step = function() {
+BabyBalloon.prototype.step = function() {
   this.x = this.x + this.dx;
   this.y = this.y + this.dy;
+  var hasCollided = checkAllBalloonsForCollisions(this);
 
   //if x or y is out of bounds, reverse direction
-  if (this.x > 500 || this.x < 0) {
-    this.dx = -(this.dx)
+  if (this.x > 500 || this.x < 0 || hasCollided) {
+    this.dx = -(this.dx);
   }
 
-  if (this.y > 500 || this.y < 0){
+  if (this.y > 500 || this.y < 0 || hasCollided){
     this.dy = -(this.dy);
   }
 
+  if (!this.auto)
+    clearInterval(this.timer);
 }
 
-Balloon.prototype.willTurn = function(){
+BabyBalloon.prototype.willTurn = function(){
   return Math.floor((Math.random() * 10) > 5);
 }
 
 
-//****** Timer Functions *******//
+//*****  Collisions   *****//
+
+//can be pre-composed with balloons array maybe?
+function checkAllBalloonsForCollisions (balloon) {
+  for (var i = 0; i < balloons.length; i++) {
+    if (balloon.id != balloons[i].id && haveCollided(balloon, balloons[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// detects whether 2 circles have collided
+function haveCollided (circle1, circle2) {
+  // debugger;
+  var distX = circle1.x - circle2.x;
+  var distY = circle1.y - circle2.y;
+  var distance = Math.sqrt(distX * distY + distY * distY);
+
+  return (distance < circle1.radius + circle2.radius);
+}
+
+
+//****** User Balloon *******//
 
 
 var userBalloon = new Balloon(250, 250);
@@ -116,9 +93,13 @@ function moveTowardsPointer(e){
 }
 
 
+//****** Baby Balloons *******//
+
 var balloons = [];
+
+
 function addBalloon () {
-  var newBalloon = new Balloon(userBalloon.x, userBalloon.y);
+  var newBalloon = new BabyBalloon(userBalloon.x, userBalloon.y);
   newBalloon.automate();
   balloons.push(newBalloon);
   document.getElementById('count').innerHTML = balloons.length;
@@ -132,40 +113,21 @@ function drawBalloons(canvas) {
   userBalloon.draw(canvas);
 }
 
-timer = setInterval(function() {
-  canvas.clear();
-  addBalloon();
-  drawBalloons(canvas);
-}, 1000);
+
+/*****  Timers  *****/
+
+function startGame(){
+  var addBalloonTimer = setInterval(function() {
+    canvas.clear();
+    addBalloon();
+    drawBalloons(canvas);
+  }, 1000);
 
 
-var drawLoop = setInterval(function() {
-  drawBalloons(canvas);
-}, 50);
-
-
-
-
-//there HAS to be a better way to do this...
-function makeNumberMoreEqual (start, end, increment) {
-  if (start > end) {
-      if (start - end <= increment){
-        return end;
-      }
-      else {
-        return start - increment;
-      }
-  }
-  else if (end > start) {
-      if (end - start <= increment){
-        return end;
-      }
-      else {
-        return start + increment;
-      }
-  }
-
-  return end;
-
+  var drawTimer = setInterval(function() {
+    drawBalloons(canvas);
+  }, 50);
 }
-//adding stuff
+
+
+startGame();
