@@ -1,0 +1,14 @@
+body {
+  background-color: deepskyblue;
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+#count {
+  width: 100px;
+  text-align: center;
+  margin: 0 auto;
+}
