@@ -1,0 +1,16 @@
+/*
+90deg   (a, b) > (-b, a)
+180deg  (a, b) > (-a, -b)
+270deg  (a, b) > (b, -a)
+*/
+
+
+identify the widest length and center point: 
+
+pull out all the x values - biggest difference?  get highest/lowest and subtract, then add 1
+pull out all the y values - biggest difference? get highest/lowest and subtract, then add 1
+
+the higher of those 2 is the width.
+if odd, then that number - 1 / 2 is the middle, both x and y
+
+this number -2 is ALSO the distance rotating blocks need to move around their paths

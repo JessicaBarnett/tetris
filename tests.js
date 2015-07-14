@@ -1,14 +1,18 @@
-unction testMakeNumberMoreEqual (){
-    var t = makeNumberMoreEqual(112, 0, 10);
-    for (var i = 0; i < 10; i ++){
-      t = makeNumberMoreEqual(t, 0, 10);
-      console.log(t);
-    }
-}
+//*** Tests ***//
 
+//Note: Check key codes: $(document).keydown(function(e){console.log(e.which)})
 
-
-function testCollisions() {
-  test1 = [new BabyBalloon(5, 5), new BabyBalloon(10, 10)];
-  console.log(haveCollided(test1[0], test1[1]))
+// Visual test for blocks
+function testBlocks(){
+  var i = 0;
+  for (tetrino in tetrinos) {
+    i+= 1;
+    setTimeout((function(){
+      var block = tetrinos[tetrino];
+      return function(){
+        canvas.clear();
+        drawTetrino(block);
+      }
+    })(), i*1000)
+  }
 }

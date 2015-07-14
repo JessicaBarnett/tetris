@@ -1,26 +1,41 @@
-//****** Canvas Draw functions *******//
-var canvasElement = document.getElementById('canvas');
-var canvas = (function(ctx, w, h){
-  var context = ctx,
-      width = w,
-      height = h,
+//***********         CANVAS         ***********//
+//*     Abstract drawing functions go here     *//
 
-  drawCircle = function(x, y, radius, color){
-      context.beginPath();
-      context.fillStyle = color;
-      context.arc(x, y, radius, 0, Math.PI*2, true);
-      context.closePath();
-      context.lineWidth = 0;
-      context.fill();
+var canvas = (function(){
+  var element,
+      ctx,
+      w,
+      h,
+  drawSquare = function(x, y, width, height, color){
+      ctx.strokeStyle = 'white';
+      ctx.fillStyle = color || 'gray';
+      ctx.lineWidth = 2;
+      ctx.fillRect(x, y, width, height);
+      ctx.strokeRect(x, y, width, height);
+      drawCoordinates(x, y, width); //for debugging
   },
   clear = function(){
-      context.fillStyle = 'aliceblue';
-      context.fillRect(0, 0, width, height);
+      ctx.fillStyle = 'aliceblue';
+      ctx.fillRect(0, 0, w, h);
+  },
+  //for debugging
+  drawCoordinates = function(x, y, width){
+    var coordinateString = x/width+','+y/width;
+    ctx.fillStyle = 'black';
+    ctx.fillText(coordinateString, x+3, y+15, width);
+  },
+  init = function(canvasSelector){
+      element = document.getElementById(canvasSelector);
+      ctx = element.getContext('2d');
+      w = element.width;
+      h = element.height;
+      clear();
   };
 
   return {
-    drawCircle : drawCircle,
-    clear: clear
+    drawSquare : drawSquare,
+    clear : clear,
+    init : init
   }
-})(canvasElement.getContext('2d'), canvasElement.width, canvasElement.height);
-canvas.clear(); //draw board
+})();
+canvas.init('gameBoard');

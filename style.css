@@ -1,14 +1,15 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   background-color: deepskyblue;
 }
 
-canvas {
+#gameBoard {
   display: block;
   margin: 0 auto;
-}
-
-#count {
-  width: 100px;
-  text-align: center;
-  margin: 0 auto;
+  /*background-color: green;
+  height: 800px;
+  width: 200px;*/
 }
