@@ -6,39 +6,7 @@
 // map through and find all the consecutive x / y values.  the higher of the 2 is the height of the block
 //identify center
 
-function buildMino(type, x, y){
-  this.squares = makeMinoSparseArray(tetrominos[type]);
-  this.x = x;
-  this.y = y;
-}
-
-
-function randomNum(highest){
-  return Math.floor( Math.random() * highest );
-}
-
-// the bottom y coordinate for the column (index)
-var bottom = _.map(Array(12), function(){
-  return 19;
-});
-
-
-/*
-x` = x cos(95deg) - y sin(95deg)
-y` = x sin(95deg) + y cos(95deg)
-
-*/
-
-
-// {
-//   x: ,
-//   y: ,
-//   color: ,
-//   proto:
-//   type:
-// }
-
-
+/*  TETROMINOS   */
 
 var tetrominos = {
    L: [{ x: 0, y: 1 }, { x: 1, y: 1 },
@@ -63,6 +31,27 @@ var tetrominos = {
        { x: 2, y: 1 }, { x: 1, y: 0 }]
  };
 
+function buildMino(type, x, y){
+  this.squares = makeMinoSparseArray(tetrominos[type]);
+  this.x = x;
+  this.y = y;
+}
+
+/*
+  returns a new block with the passed color/type
+*/
+function newTetromino(type, x, y){
+  return makeMinoSparseArray(_.map(tetrominos[type], function(square){
+    return {
+      x: square.x,
+      y: square.y,
+      color: colorGenerator.get(type),
+      type: type,
+      proto: tetrominos[type]
+    };
+  }));
+}
+
 function makeMinoSparseArray(proto){
   var width = getWidth(proto);
   var mino = [], match;
@@ -74,6 +63,40 @@ function makeMinoSparseArray(proto){
   }
   return mino;
 }
+
+function getWidth (block){
+  var xWidth = (_.max(block, 'x').x + 1) - _.min(block, 'x').x,
+      yWidth = (_.max(block, 'y').y + 1) - _.min(block, 'y').y;
+
+  return xWidth > yWidth ? xWidth : yWidth;
+}
+
+
+
+/*
+  returns a random tetromino name
+*/
+function randomTetromino(){
+  return newTetromino(randomTetrominoName());
+}
+
+function randomTetrominoName (){
+  return Object.keys(tetrominos)[Math.floor(Math.random()*7)];
+}
+
+
+
+function randomNum(highest){
+  return Math.floor( Math.random() * highest );
+}
+
+// the bottom y coordinate for the column (index)
+var bottom = _.map(Array(12), function(){
+  return 19;
+});
+
+
+
 
 
 
@@ -99,19 +122,22 @@ var move = function() {
   },
 
   isOutOfBounds = function(block, func){
-    if (func === moveLeft && hasHitLeftSide(block))
+    var compactBlock = _.compact(block);
+    if (func === moveLeft && hasHitLeftSide(compactBlock))
       return true;
 
-    if (func === moveRight && hasHitRightSide(block))
+    if (func === moveRight && hasHitRightSide(compactBlock))
       return true;
 
-    if ((func === softDrop || func === hardDrop) && hasHitBottom(block))
+    if ((func === softDrop || func === hardDrop) && hasHitBottom(compactBlock))
       return true;
 
     return false;
   },
 
   moveRight = function(square){
+    if (!square)
+      return null;
     return _.assign(square, {
       x: square.x + 1,
       y: square.y
@@ -119,6 +145,8 @@ var move = function() {
   },
 
   moveLeft = function(square){
+    if (!square)
+      return null;
     return _.assign(square, {
       x: square.x - 1,
       y: square.y
@@ -128,6 +156,8 @@ var move = function() {
   // this feature does not re-set the 'bottom' of the board,
   // so moving up from the bottom edge will cause errors
   moveUp = function(square){
+    if (!square)
+      return null;
     return _.assign(square, {
       x: square.x,
       y: square.y - 1
@@ -135,6 +165,8 @@ var move = function() {
   },
 
   softDrop = function(square){
+    if (!square)
+      return null;
     return _.assign(square, {
       x: square.x,
       y: square.y + 1
@@ -142,6 +174,8 @@ var move = function() {
   },
 
   hardDrop = function(square){
+    if (!square)
+      return null;
     bottom[square.x] -= 1; //TODO: move this functionality into its own function
     return _.assign(square, {
       x: square.x,
@@ -149,23 +183,33 @@ var move = function() {
     });
   },
 
-  rotateRight = function(square, index){
-    console.log(index);
-    // x` = x cos(95deg) - y sin(95deg)
-    // y` = x sin(95deg) + y cos(95deg)
-
+  flipXY = function(square){
+    if (!square)
+      return null;
     return _.assign(square, {
-      x: square.x * Math.cos(95) - square.y * Math.sin(95),
-      y: square.x * Math.sin(95) - square.y * Math.cos(95),
+      x: square.y,
+      y: square.x
     });
+  },
+
+  rotateRight = function(square, index){
+    if (!square)
+      return null;
 
     // return _.assign(square, {
-    //   x: -1 * square.y,
-    //   y: square.x
+    //   x: square.x * Math.cos(95) - square.y * Math.sin(95),
+    //   y: square.x * Math.sin(95) - square.y * Math.cos(95),
     // });
+
+    return _.assign(square, {
+      x: -1 * square.y,
+      y: square.x
+    });
   },
 
   rotateLeft = function(square){
+    // if (!square)
+    //   return null;
     return _.assign(square, {
       x: square.y,
       y: -1 * square.x
@@ -176,6 +220,7 @@ var move = function() {
     moveRight: _.partialRight(moveBlock, moveRight),
     moveLeft: _.partialRight(moveBlock, moveLeft),
     moveUp: _.partialRight(moveBlock, moveUp),
+    flipXY: _.partialRight(moveBlock, flipXY),
     softDrop: _.partialRight(moveBlock, softDrop),
     hardDrop: _.partialRight(moveBlock, hardDrop),
     rotateRight: _.partialRight(moveBlock, rotateRight),
@@ -184,21 +229,97 @@ var move = function() {
 
 }();
 
-  function getWidth (block){
-    var xWidth = (_.max(block, 'x').x + 1) - _.min(block, 'x').x,
-        yWidth = (_.max(block, 'y').y + 1) - _.min(block, 'y').y;
 
-    return xWidth > yWidth ? xWidth : yWidth;
+/***  BLOCK MOVEMENT restructure  ***/
+/*
+
+accepts a block with a .proto property that contains an array of blocks,
+identical to the ones in the 'tetromino' array.
+
+move functions calculate a block's position by adding the block's
+coordinates (x, y) to the points in proto
+
+*/
+
+
+var move2 = function() {
+  var moveBlock = function(block, func){
+    // if (isOutOfBounds(block, func)){
+    //   return _.identity(block);
+    // }
+
+    return _.map(block, func);
+  },
+
+  moveRight = function(square){
+    if (!square)
+      return null;
+
+
+    return _.assign(square, {
+      x: square.protox + 1,
+      y: square.y
+    });
+  },
+
+  moveLeft = function(square){
+    if (!square)
+      return null;
+    return _.assign(square, {
+      x: square.x - 1,
+      y: square.y
+    });
+  },
+
+  moveUp = function(square){
+    if (!square)
+      return null;
+    return _.assign(square, {
+      x: square.x,
+      y: square.y - 1
+    });
+  },
+
+  softDrop = function(square){
+    if (!square)
+      return null;
+    return _.assign(square, {
+      x: square.x,
+      y: square.y + 1
+    });
+  },
+
+  hardDrop = function(square){
+    return square;
+  },
+
+  flipXY = function(square){
+    return square;
+  },
+
+  rotateRight = function(square){
+    return square;
+  },
+
+  rotateLeft = function(square){
+    return square;
+  };
+
+  return {
+    moveRight: _.partialRight(moveBlock, moveRight),
+    moveLeft: _.partialRight(moveBlock, moveLeft),
+    moveUp: _.partialRight(moveBlock, moveUp),
+    flipXY: _.partialRight(moveBlock, flipXY),
+    softDrop: _.partialRight(moveBlock, softDrop),
+    hardDrop: _.partialRight(moveBlock, hardDrop),
+    rotateRight: _.partialRight(moveBlock, rotateRight),
+    rotateLeft: _.partialRight(moveBlock, rotateLeft)
   }
 
-  function convertToMatrix (block){
-      var matrixLength = Math.pow(getWidth(block), 2);
-
-  }
+}();
 
 
 /***  COLLISION TESTS  ***/
-
 
 function hasHitLeftSide(block) {
   return _.reduce(block, function(result, square){
@@ -236,7 +357,9 @@ function hasHitBottom(block) {
 
 function drawSquares(squares){
   _.forEach(squares, function(square){
-      canvas.drawSquare(coordinates(square.x), coordinates(square.y), 25, 25, square.color);
+      if (square) {
+        canvas.drawSquare(coordinates(square.x), coordinates(square.y), 25, 25, square.color);
+      }
   });
 }
 
@@ -244,7 +367,8 @@ function drawSquares(squares){
 
 function logTetromino(block){
   return _.map(block, function(square){
-    return '( ' + square.x + ', ' + square.y +' )';
+    if (square)
+      return '( ' + square.x + ', ' + square.y +' )';
   });
 }
 
@@ -264,32 +388,6 @@ function logFunctions(block){
 function coordinates(point){
     var blockWidth = 25;
     return (point * blockWidth);
-}
-
-/*
-  returns a new block with the passed color/type
-*/
-function newTetromino(type){
-  return _.map(tetrominos[type], function(square){
-    return {
-      x: square.x,
-      y: square.y,
-      color: colorGenerator.get(type),
-      type: type,
-      proto: tetrominos[type]
-    };
-  });
-}
-
-/*
-  returns a random tetromino name
-*/
-function randomTetromino(){
-  return newTetromino(randomTetrominoName());
-}
-
-function randomTetrominoName (){
-  return Object.keys(tetrominos)[Math.floor(Math.random()*7)];
 }
 
 var board = [];
@@ -315,14 +413,16 @@ $(document).keydown(function(e){
     currentBlock = move.rotateRight(currentBlock);
   else if (key === 81) /* Q */
     currentBlock = move.rotateLeft(currentBlock);
+  else if (key === 191) /* ? */
+    currentBlock = move.flipXY(currentBlock);
 
   canvas.clear();
   drawSquares(currentBlock);
   logFunctions(currentBlock);
   drawSquares(board);
 
-  if (hasHitBottom(currentBlock)){
-    board = board.concat(currentBlock);
+  if (hasHitBottom(_.compact(currentBlock))){
+    board = board.concat(_.compact(currentBlock));
     currentBlock = randomTetromino();
   }
 });

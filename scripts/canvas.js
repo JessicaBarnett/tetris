@@ -35,7 +35,50 @@ var canvas = (function(){
   return {
     drawSquare : drawSquare,
     clear : clear,
-    init : init
+    init : init,
   }
 })();
 canvas.init('gameBoard');
+
+
+/*Utility*/
+
+/* draw squares */
+function drawSquares(squares){
+  function coordinates(point){
+      var blockWidth = 25;
+      return (point * blockWidth);
+  }
+
+  _.forEach(squares, function(square){
+      if (square) {
+        canvas.drawSquare(coordinates(square.x), coordinates(square.y), 25, 25, square.color);
+      }
+  });
+}
+
+/* logs squares */
+function logSquares(squares){
+  console.log(_.map(squares, function(square){
+    if (square)
+      return '( ' + square.x + ', ' + square.y +' )';
+  }));
+}
+
+/* random number */
+function randomNum(highest){
+  return Math.abs(Math.floor( Math.random() * highest ));
+}
+
+/* tests */
+//
+// /* generate 10 blocks and place them randomly on the board */
+// function generate10(){
+//   var newMino,
+//       squaresArray = [];
+//   for (var i = 0; i < 10; i++) {
+//       newMino = TGen.make(randomNum(3), randomNum(10));
+//       squaresArray = squaresArray.concat(newMino.squares);
+//   }
+//   return squaresArray;
+// }

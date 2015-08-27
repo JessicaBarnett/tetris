@@ -1,0 +1,160 @@
+// How about:
+//
+// a module that's intended to create tetrominos (stores colors, proto, etc)
+// store tetromino as a sparse array.  only maintain info needed to draw it (don't need proto)
+// sparse array contains square objects {x, y, color}?
+
+
+/*
+90deg   (a, b) > (-b, a)
+180deg  (a, b) > (-a, -b)
+270deg  (a, b) > (b, -a)
+*/
+
+
+/* the 'widestAxis' is used as the size of a matrix.
+  * an O block is 2 wide, matrix will be 2 x 2
+  * an L block is 3 wide, matrix will be 3 x 3
+  * an I block is 4 wide, matrix will be 4 x 4
+*/
+
+
+// identify the widest length and center point:
+//
+// pull out all the x values - biggest difference?  get highest/lowest and subtract, then add 1
+// pull out all the y values - biggest difference? get highest/lowest and subtract, then add 1
+//
+// the higher of those 2 is the width.
+// if odd, then that number - 1 / 2 is the middle, both x and y
+//
+// this number -2 is ALSO the distance rotating blocks need to move around their paths
+//
+//
+//
+// var tetrominos = {
+//    L: [{ x: 5, y: -3 }, { x: 5, y: -2 },
+//        { x: 5, y: -1 }, { x: 6, y: -1 }],
+//
+//    J: [{ x: 6, y: -1 }, { x: 6, y: -2 },
+//        { x: 6, y: -3 }, { x: 5, y: -1 }],
+//
+//    I: [{ x: 5, y: -1 }, { x: 5, y: -2 },
+//        { x: 5, y: -3 }, { x: 5, y: -4 }],
+//
+//    O: [{ x: 5, y: -1 }, { x: 6, y: -1 },
+//        { x: 5, y: -2 }, { x: 6, y: -2 }],
+//
+//    Z: [{ x: 5, y: -2 }, { x: 6, y: -1 },
+//        { x: 6, y: -2 }, { x: 7, y: -1 }],
+//
+//    S: [{ x: 6, y: -1 }, { x: 7, y: -2 },
+//        { x: 5, y: -1 }, { x: 6, y: -2 }],
+//
+//    T: [{ x: 5, y: -1 }, { x: 6, y: -1 },
+//        { x: 7, y: -1 }, { x: 6, y: -2 }]
+//  };
+
+
+
+
+
+  /*
+    single square rotation
+
+    clockwise!
+
+    center square: 4
+    sequence: 0, 1, 2, 5, 8, 7, 6, 3
+
+    if square falls on a mid square:
+          1, 5, 7, 3
+
+    if square is a corner square:
+          0, 2, 8, 6
+
+    if square is center, it stays constant:
+          4
+
+      0  1  2           0  1  2  3  4  5  6  7  8
+    0 o                 o, _, _, _, x, _, _, _, _
+    1
+    2                   0
+
+
+      0  1  2           0  1  2  3  4  5  6  7  8
+    0    o              _, o, _, _, x, _, _, _, _
+    1
+    2                   1
+
+
+      0  1  2           0  1  2  3  4  5  6  7  8
+    0       o           _, _, o, _, x, _, _, _, _
+    1
+    2                   2
+
+
+      0  1  2           0  1  2  3  4  5  6  7  8
+    0                   _, _, _, _, x, o, _, _, _
+    1       o
+    2                   5
+
+
+      0  1  2           0  1  2  3  4  5  6  7  8
+    0                   _, _, _, _, x, _, _, _, o
+    1
+    2       o           8
+
+
+      0  1  2           0  1  2  3  4  5  6  7  8
+    0                   _, _, _, _, x, _, _, o, _
+    1
+    2    o              7
+
+
+      0  1  2           0  1  2  3  4  5  6  7  8
+    0                   _, _, _, _, x, _, o, _, _
+    1
+    2 o                 6
+
+
+      0  1  2           0  1  2  3  4  5  6  7  8
+    0                   _, _, _, o, x, _, _, _, _
+    1 o
+    2                   3
+
+  */
+
+
+
+
+/*
+  L tetromino rotation
+
+    0  1  2           0  1  2  3  4  5  6  7  8
+  0    o              _, o, _, _, o, _, _, o, o
+  1    o
+  2    o  o           1, 4, 7, 8
+
+
+
+    0  1  2           0  1  2  3  4  5  6  7  8
+  0                   _, _, _, o, o, o, o, _, _
+  1 o  o  o
+  2 o                 3, 4, 5, 6
+
+
+
+    0  1  2           0  1  2  3  4  5  6  7  8
+  0 o  o              o, o, _, _, o, _, _, o, _
+  1    o
+  2    o              0, 1, 4, 7
+
+
+
+    0  1  2           0  1  2  3  4  5  6  7  8
+  0       o           _, _, o, o, o, o, _, _, _
+  1 o  o  o
+  2                   2, 3, 4, 5
+
+
+*/

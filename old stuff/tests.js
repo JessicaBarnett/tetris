@@ -1,4 +1,10 @@
 //*** Tests ***//
+/*
+var l = TGen.make('L', {x: 4, y: 7});
+drawSquares(l.squares);
+moveT.rotate(l);
+*/
+
 
 //Note: Check key codes: $(document).keydown(function(e){console.log(e.which)})
 
