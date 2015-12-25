@@ -1,160 +1,281 @@
-// How about:
-//
-// a module that's intended to create tetrominos (stores colors, proto, etc)
-// store tetromino as a sparse array.  only maintain info needed to draw it (don't need proto)
-// sparse array contains square objects {x, y, color}?
+****************************************************************************************
+
+### FINALIZED ROTATION PROCESS
+
+    Pre-rotation
+
+         -2 -1  0  1  2  3  4  5
+       -2
+       -1       ----------------
+        0      |
+        1      |
+        2      |         #
+        3      |      #  #
+        4      |         #
+        5      |              (3, 3)
+        6      |                squares: (3, 2) (3, 3) (2, 3) (3, 4)
 
 
-/*
-90deg   (a, b) > (-b, a)
-180deg  (a, b) > (-a, -b)
-270deg  (a, b) > (b, -a)
-*/
+    Translating Block (and thus squares) to origin (0, 0) by subtracting 3
+
+         -2 -1  0  1  2  3  4  5
+       -2
+       -1       #  --------------
+        0    #  #
+        1       #
+        2      |
+        3      |
+        4      |
+        5      |              (0, 0)
+        6      |                squares: (0, -1) (0, 0) (-1, 0) (0, 1)
+                                ** should be similar to the prototype the squares were initially generated from **
 
 
-/* the 'widestAxis' is used as the size of a matrix.
-  * an O block is 2 wide, matrix will be 2 x 2
-  * an L block is 3 wide, matrix will be 3 x 3
-  * an I block is 4 wide, matrix will be 4 x 4
-*/
+    clockwise Rotation
+        new x = y
+        new y = x * -1     (for reverse rotation, new x = y * -1 / new y = x)
 
-
-// identify the widest length and center point:
-//
-// pull out all the x values - biggest difference?  get highest/lowest and subtract, then add 1
-// pull out all the y values - biggest difference? get highest/lowest and subtract, then add 1
-//
-// the higher of those 2 is the width.
-// if odd, then that number - 1 / 2 is the middle, both x and y
-//
-// this number -2 is ALSO the distance rotating blocks need to move around their paths
-//
-//
-//
-// var tetrominos = {
-//    L: [{ x: 5, y: -3 }, { x: 5, y: -2 },
-//        { x: 5, y: -1 }, { x: 6, y: -1 }],
-//
-//    J: [{ x: 6, y: -1 }, { x: 6, y: -2 },
-//        { x: 6, y: -3 }, { x: 5, y: -1 }],
-//
-//    I: [{ x: 5, y: -1 }, { x: 5, y: -2 },
-//        { x: 5, y: -3 }, { x: 5, y: -4 }],
-//
-//    O: [{ x: 5, y: -1 }, { x: 6, y: -1 },
-//        { x: 5, y: -2 }, { x: 6, y: -2 }],
-//
-//    Z: [{ x: 5, y: -2 }, { x: 6, y: -1 },
-//        { x: 6, y: -2 }, { x: 7, y: -1 }],
-//
-//    S: [{ x: 6, y: -1 }, { x: 7, y: -2 },
-//        { x: 5, y: -1 }, { x: 6, y: -2 }],
-//
-//    T: [{ x: 5, y: -1 }, { x: 6, y: -1 },
-//        { x: 7, y: -1 }, { x: 6, y: -2 }]
-//  };
+         -2 -1  0  1  2  3  4  5
+       -2
+       -1       #  --------------
+        0    #  #  #
+        1      |
+        2      |
+        3      |
+        4      |
+        5      |              (0, 0)
+        6      |                squares: (1, 0) (0, 0) (0, -1) (-1, 0)
 
 
 
+    Translating Block (and thus squares) to initial position (3, 3) by adding 3
+
+         -2 -1  0  1  2  3  4  5
+       -2
+       -1       ----------------
+        0      |
+        1      |
+        2      |         #
+        3      |      #  #  #
+        4      |
+        5      |              (3, 3)
+        6      |                squares: (4, 3) (3, 3) (3, 2) (2, 3)
 
 
-  /*
-    single square rotation
+    #### AND ALSO A SMALL MATHY THING
 
-    clockwise!
-
-    center square: 4
-    sequence: 0, 1, 2, 5, 8, 7, 6, 3
-
-    if square falls on a mid square:
-          1, 5, 7, 3
-
-    if square is a corner square:
-          0, 2, 8, 6
-
-    if square is center, it stays constant:
-          4
-
-      0  1  2           0  1  2  3  4  5  6  7  8
-    0 o                 o, _, _, _, x, _, _, _, _
-    1
-    2                   0
+         90deg   (a, b) > (-b, a)
+         180deg  (a, b) > (-a, -b)
+         270deg  (a, b) > (b, -a)
 
 
-      0  1  2           0  1  2  3  4  5  6  7  8
-    0    o              _, o, _, _, x, _, _, _, _
-    1
-    2                   1
+********************************************************************************************
+
+### THE ROTATION PROCESS I DEFINITELY DID NOT GO WITH
+
+    My initial attempt at making this rotation thing happen was different from what I have now.
+    The initial Idea I had was to convert a block into a matrix-like sparse array (see diagrams
+    below for a visual.)  I would then move the individual squares within that matrix according
+    to the patterns identified below.  When all the squares were moved, I'd use _.compact to
+    tidy it all up, and return the squares.
+
+    It was an unnecessarily complicated approach.  Truth was I didn't have a strong enough grasp
+    of better mathematical ways to do it.  The way described above is much better.
+
+                                    *****************
+
+    diagrams below are intended to visually translate the position of a square in
+    a matrix into the indices of an array.
+
+        0  1  2
+
+    0   0  1  2
+    1   3  4  5
+    2   6  7  8
 
 
-      0  1  2           0  1  2  3  4  5  6  7  8
-    0       o           _, _, o, _, x, _, _, _, _
-    1
-    2                   2
+    #### SINGLE SQUARE ROTATION
+
+        clockwise!
+
+        center square: 4
+        sequence: 0, 1, 2, 5, 8, 7, 6, 3
+
+        if square is center, it stays constant:
+              4, 4, 4, 4
+        if square falls on a mid square and skips every other space:
+              1, 5, 7, 3
+        if square is a corner square and skips every other space:
+              0, 2, 8, 6
 
 
-      0  1  2           0  1  2  3  4  5  6  7  8
-    0                   _, _, _, _, x, o, _, _, _
-    1       o
-    2                   5
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0 o                 o, _, _, _, x, _, _, _, _
+        1
+        2                   0
 
 
-      0  1  2           0  1  2  3  4  5  6  7  8
-    0                   _, _, _, _, x, _, _, _, o
-    1
-    2       o           8
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0    o              _, o, _, _, x, _, _, _, _
+        1
+        2                   1
 
 
-      0  1  2           0  1  2  3  4  5  6  7  8
-    0                   _, _, _, _, x, _, _, o, _
-    1
-    2    o              7
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0       o           _, _, o, _, x, _, _, _, _
+        1
+        2                   2
 
 
-      0  1  2           0  1  2  3  4  5  6  7  8
-    0                   _, _, _, _, x, _, o, _, _
-    1
-    2 o                 6
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0                   _, _, _, _, x, o, _, _, _
+        1       o
+        2                   5
 
 
-      0  1  2           0  1  2  3  4  5  6  7  8
-    0                   _, _, _, o, x, _, _, _, _
-    1 o
-    2                   3
-
-  */
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0                   _, _, _, _, x, _, _, _, o
+        1
+        2       o           8
 
 
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0                   _, _, _, _, x, _, _, o, _
+        1
+        2    o              7
 
 
-/*
-  L tetromino rotation
-
-    0  1  2           0  1  2  3  4  5  6  7  8
-  0    o              _, o, _, _, o, _, _, o, o
-  1    o
-  2    o  o           1, 4, 7, 8
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0                   _, _, _, _, x, _, o, _, _
+        1
+        2 o                 6
 
 
-
-    0  1  2           0  1  2  3  4  5  6  7  8
-  0                   _, _, _, o, o, o, o, _, _
-  1 o  o  o
-  2 o                 3, 4, 5, 6
-
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0                   _, _, _, o, x, _, _, _, _
+        1 o
+        2                   3
 
 
-    0  1  2           0  1  2  3  4  5  6  7  8
-  0 o  o              o, o, _, _, o, _, _, o, _
-  1    o
-  2    o              0, 1, 4, 7
+    #### L TETROMINO ROTATION
+
+
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0    o              _, o, _, _, o, _, _, o, o
+        1    o
+        2    o  o           1, 4, 7, 8
+
+
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0                   _, _, _, o, o, o, o, _, _
+        1 o  o  o
+        2 o                 3, 4, 5, 6
+
+
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0 o  o              o, o, _, _, o, _, _, o, _
+        1    o
+        2    o              0, 1, 4, 7
+
+
+          0  1  2           0  1  2  3  4  5  6  7  8
+        0       o           _, _, o, o, o, o, _, _, _
+        1 o  o  o
+        2                   2, 3, 4, 5
+
+
+        SOME NOTES AND FUNCTIONS FROM THIS FAR-AWAY AND WELL FORGOTTEN TIME THAT I JUST CAN'T SEEM TO PART WITH COMPLETELY
+
+            /* the 'width' is used as the size of a matrix.
+              * an O block is 2 wide, matrix will be 2 x 2
+              * an L block is 3 wide, matrix will be 3 x 3
+              * an I block is 4 wide, matrix will be 4 x 4
+            */
+
+            /*
+              identify the widest length and center point:
+
+              pull out all the x values - biggest difference?  get highest/lowest and subtract, then add 1
+              pull out all the y values - biggest difference? get highest/lowest and subtract, then add 1
+
+              the higher of those 2 is the width.
+              if odd, then that number - 1 / 2 is the middle, both x and y
+
+              this number -2 is ALSO the distance rotating blocks need to move around their paths
+            */
 
 
 
-    0  1  2           0  1  2  3  4  5  6  7  8
-  0       o           _, _, o, o, o, o, _, _, _
-  1 o  o  o
-  2                   2, 3, 4, 5
+            /*  takes an array of squares and turns it into an array that
+                represents a grid
+                Example: an upright L tetromino
+                  its widestAxis is 3 squares (top of L to bottom), so its sparse array
+                  will be 3 X 3 blocks long (9) with every 3 squares representing a row.
+                  sparse array will represent a block like this:
+                  [ _, O, _,
+                    _, O, _,
+                    _, O, O  ]
+                  empty spaces will be set to 'null'
+                  This sparse array is used in the rotation of blocks
+                  Method works by
+                    * iterating though all possible points in a widestAxis x widestAxis array,
+                    * comparing them to the squares in a compact proto array (block starts at 0, 0)
+                      * if there is a match, assign that point to said match
+                      * if not, assign null
+            */
+            var makeSparse = function(protoSquares){
+               var widestAxis = getWidestAxis(protoSquares),
+                   sparseSquares = [],
+                   match;
+
+               // iterate through all possible points in a widestAxis x widestAxis grid
+               for (var y = 0; y < widestAxis; y++){
+                 for (var x = 0; x < widestAxis; x++){
+                   match = _.where(protoSquares, {x: x, y: y})[0];
+                   sparseSquares.push( match ? match : null);
+                 }
+               }
+
+               return sparseSquares;
+            };
 
 
-*/
+
+            /*
+                finds the width of a block: 2, 3, or 4
+                takes the highest x/y value (+1 to account for 0 indices) and subtracts
+                the lowest x/y value.
+            */
+            getWidth = function(block){
+              var xWidth = (_.max(block, 'x').x + 1) - _.min(block, 'x').x,
+                  yWidth = (_.max(block, 'y').y + 1) - _.min(block, 'y').y;
+
+              return xWidth > yWidth ? xWidth : yWidth;
+            }
+
+
+********************************************************************************************
+
+### I INITIALLY THOUGHT I MIGHT USE AN OBJECT/PROTOTYPE TO REPRESENT A TETROMINO
+
+    I eventually figured that just manipulating plain objects and arrays
+    would be more in line with my goal of keeping things stateless and
+    functional.  But it's definitely an approach I could've taken.
+
+    This is also using the sparseArray stuff described above.
+
+        // Constructor function
+        function Tetromino(type, x, y){
+            this.x = x;
+            this.y = y;
+            this.rotation = 0; //integer 0 - 3.
+            this.type = type; //constant
+            this.proto = prototypes[type]; //constant
+        }
+
+        /* has access to this.x and this.y, both of which are dynamic */
+        Tetromino.prototype.squares = function(squares){
+          // 1. transforms proto squares into current rotation (using sparseProtoSquares)
+          // 2. transforms proto squares into the current x/y location.
+          return moveSquares(rotateSquares(this.proto, this.rotation, this.reverse), this.x, this.y);
+        };
