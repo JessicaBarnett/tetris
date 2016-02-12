@@ -67,7 +67,7 @@ function shiftRow(board, start){
 */
 
 
-var board = BGen.make(20, 11);
+var board = GameBoard.make(20, 11);
 var block = TGen.make(5, -2);
 
 

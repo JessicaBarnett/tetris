@@ -8,7 +8,7 @@
     }
 
 */
-var BGen = (function(){
+var GameBoard = (function(){
 
   var generateBoard = function(rows, cols){
       return {
