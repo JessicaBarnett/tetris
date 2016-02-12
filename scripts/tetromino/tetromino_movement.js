@@ -6,11 +6,11 @@ var tetrominoMovement = function(){
         if (!_.isFinite(block.x) || !_.isFinite(block.y) || !_.isFinite(dx) || !_.isFinite(dy))
           throw new Error('argument error - expected block, and a value for dx and dy.  ~love from translateBlock');
 
-        return {
+        return _.assign(_.clone(block), {
           x: block.x + dx,
           y: block.y + dy,
           squares: translateSquares(block.squares, dx, dy)
-        }
+        });
       },
 
   translateSquares = function(squares, dx, dy){

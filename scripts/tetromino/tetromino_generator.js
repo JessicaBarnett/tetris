@@ -65,6 +65,7 @@ var tetrominoGenerator = function(prototypes, colors){
         return {
           x: x,
           y: y,
+          proto: type,
           squares: squares
         };
   };
