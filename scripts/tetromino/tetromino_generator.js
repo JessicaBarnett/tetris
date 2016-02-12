@@ -12,41 +12,7 @@
 */
 
 
-var TGen = (function(){
-
-  /* Private, immutable Data Sets  */
-  var prototypes = {
-     J: [{ x: -1, y: 0 }, { x: 0, y: 0 },
-         { x: 1, y: 0 }, { x: 1, y: -1 }],
-
-     L: [{ x: -1, y: -1 }, { x: -1, y: 0 },
-         { x: 0, y: 0 }, { x: 1, y: 0 }],
-
-     I: [{ x: -1, y: 1 }, { x: 0, y: 1 },
-         { x: 1, y: 1 }, { x: 2, y: 1 }],
-
-     O: [{ x: 0, y: 0 }, { x: 1, y: 0 },
-         { x: 0, y: 1 }, { x: 1, y: 1 }],
-
-     Z: [{ x: -1, y: 0 }, { x: 0, y: 0 },
-         { x: 0, y: 1 }, { x: 1, y: 1 }],
-
-     S: [{ x: -1, y: 1 }, { x: 0, y: 1 },
-         { x: 0, y: 0 }, { x: 1, y: 0 }],
-
-     T: [{ x: 0, y: -1 }, { x: -1, y: 0 },
-         { x: 0, y: 0 }, { x: 1, y: 0 }]
-   },
-
-  colors = {
-     L: '#FFA500', // orange
-     J: '#6678FF', // purply blue
-     I: '#24BDFF', // cyan
-     O: '#FFD700', // yellow
-     S: '#4CE64C', // green
-     Z: '#FF3300', // red
-     T: '#FF66FF' // pink
-  },
+var tetrominoGenerator = function(prototypes, colors){
 
    mixinColors = function(squares, type){
       if (!squares || !type)
@@ -117,4 +83,4 @@ var TGen = (function(){
   return {
     make: generateTetromino
   }
-})();
+};

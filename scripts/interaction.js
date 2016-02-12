@@ -68,7 +68,7 @@ function shiftRow(board, start){
 
 
 var board = GameBoard.make(20, 11);
-var block = TGen.make(5, -2);
+var block = Tetromino.make(5, -2);
 
 
 canvas.drawSquares(board.squares);
@@ -83,26 +83,26 @@ $(document).keydown(function(e){
 
 	/* L */
   if (key === 37) {
-		newBlock = moveT.translate(block, -1, 0);
+		newBlock = Tetromino.translate(block, -1, 0);
 		block = filterCollisions(newBlock, block, board);
 	}
 	/* R */
   else if (key === 39){
-		newBlock = moveT.translate(block, 1, 0);
+		newBlock = Tetromino.translate(block, 1, 0);
 		block = filterCollisions(newBlock, block, board);
 	}
 	/* U - Soft drop */
   else if (key === 38){
-		newBlock = moveT.translate(block, 0, -1);
+		newBlock = Tetromino.translate(block, 0, -1);
 		block = filterCollisions(newBlock, block, board);
 	}
 	 /* D */
   else if (key === 40){
-		newBlock = moveT.translate(block, 0, 1);
+		newBlock = Tetromino.translate(block, 0, 1);
 		if (collision.landed(newBlock, board)){
 			// console.log('generating new block!');
 	    board.squares = board.squares.concat(block.squares);
-	    block = TGen.make(5, -2);
+	    block = Tetromino.make(5, -2);
 		}
 		else {
 				block = filterCollisions(newBlock, block, board)
@@ -110,13 +110,13 @@ $(document).keydown(function(e){
 	}
   /* W */
 	else if (key === 87) {
-    newBlock = moveT.rotate(block, false);
+    newBlock = Tetromino.rotate(block, false);
 		block = filterCollisions(newBlock, block, board);
 
 	}
   /* Q */
   else if (key === 81) {
-    newBlock = moveT.rotate(block, true);
+    newBlock = Tetromino.rotate(block, true);
 		block = filterCollisions(newBlock, block, board);
 
 	}
@@ -126,7 +126,7 @@ $(document).keydown(function(e){
 		/* repeats the translate function until the block collides */
 		while (!collision.landed(newBlock, board)) {
 				block = newBlock;
-		    newBlock = moveT.translate(newBlock, 0, 1);
+		    newBlock = Tetromino.translate(newBlock, 0, 1);
 		}
 	}
 
