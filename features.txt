@@ -1,0 +1,40 @@
+# Features Goals
+
+  ## Code Improvements
+    - require.js
+
+  ## Basic Gameplay
+    - move blocks
+    - rotate blocks
+    - land/settle blocks and create next block
+    - clearing lines
+    - help link for controls
+
+
+  ## Game Loop
+    - get that timer running!
+    - pause functionality
+
+
+  ## Scoring System
+    - scoring system
+    - store block
+
+
+  ## UX / Design
+    - make a design... heh
+
+
+  ## Sugar
+    - change controls
+    - t-spins
+    - customize block styling
+
+
+  ## game modes
+    - sprint
+    - marathon
+    - ultra
+
+
+  ## Multiplayer
