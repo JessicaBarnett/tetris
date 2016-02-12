@@ -2,6 +2,7 @@
 
   ## Code Improvements
     - require.js
+    - test suite
 
   ## Basic Gameplay
     - move blocks
@@ -29,6 +30,11 @@
     - change controls
     - t-spins
     - customize block styling
+    - bag randomizer (you get 1 of each block every 7 turns)
+    - lock delay
+    - that thing where you hold a direction key and the block speeds up after a second
+    - kicks?
+    - http://krisreeves.com/tetris/three-things-that-make-modern-tetris-interesting/
 
 
   ## game modes
@@ -37,4 +43,4 @@
     - ultra
 
 
-  ## Multiplayer
+  ## Multiplayer???
