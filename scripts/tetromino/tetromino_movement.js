@@ -35,6 +35,10 @@ var tetrominoMovement = function(){
       if (!_.isFinite(block.x) || !_.isFinite(block.y))
         throw new Error('expected block. ~love from rotate');
 
+      if (block.proto === 'O'){
+        return block;  /* do not rotate squares */
+      }
+
       var squaresAtZeroCenter = translateSquares(block.squares, (-1*(block.x)), (-1*(block.y))),
           rotatedSquares = rotateAroundZeroCenter(squaresAtZeroCenter, reverse),
           moveSquaresBackToPosition = translateSquares(rotatedSquares, block.x, block.y);
